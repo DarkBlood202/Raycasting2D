@@ -1,0 +1,77 @@
+import pygame as pg
+import sys
+import random
+from settings import *
+from entities import *
+
+class Game:
+    def __init__(self):
+        pg.init()
+        pg.display.set_caption(TITLE)
+        self.screen = pg.display.set_mode((WIDTH,HEIGHT))
+        self.clock = pg.time.Clock()
+
+    def new_game(self):
+        self.walls = []
+        for i in range(NUMBER_OF_WALLS):
+            x1 = random.randint(0, WIDTH)
+            x2 = random.randint(0, WIDTH)
+            y1 = random.randint(0, HEIGHT)
+            y2 = random.randint(0, HEIGHT)
+            self.walls.append(Boundary(x1,y1,x2,y2))
+
+        self.walls.append(Boundary(0, 0, WIDTH, 0))
+        self.walls.append(Boundary(0, 0, 0, HEIGHT))
+        self.walls.append(Boundary(WIDTH-1, 0, WIDTH-1, HEIGHT))
+        self.walls.append(Boundary(0, HEIGHT-1, WIDTH-1, HEIGHT-1))
+
+        self.particle = Particle()
+
+    def run(self):
+        self.running = True
+        while self.running:
+            self.dt = self.clock.tick(FPS)/1000
+            self.events()
+            self.update()
+            self.draw()
+
+    def quit(self):
+        pg.quit()
+        sys.exit()
+
+    def update(self):
+        pass
+
+    def draw(self):
+        self.screen.fill(BG_COLOR)
+
+        for wall in self.walls:
+            wall.show(self.screen)
+
+        mouseX = pg.mouse.get_pos()[0]
+        mouseY = pg.mouse.get_pos()[1]
+        self.particle.update(mouseX,mouseY)
+
+        self.particle.show(self.screen)
+        self.particle.look(self.screen,self.walls)
+
+        pg.display.flip()
+
+    def events(self):
+        for ev in pg.event.get():
+            if ev.type == pg.QUIT:
+                self.quit()
+
+    def show_start_screen(self):
+        pass
+
+    def show_game_over_screen(self):
+        pass
+
+if __name__ == "__main__":
+    g = Game()
+    g.show_start_screen()
+    while True:
+        g.new_game()
+        g.run()
+        g.show_game_over_screen()
